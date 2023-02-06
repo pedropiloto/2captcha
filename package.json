@@ -13,6 +13,7 @@
     "capmonster",
     "recaptcha",
     "hcaptcha",
+    "turnstile",
     "funcaptcha"
   ],
   "scripts": {

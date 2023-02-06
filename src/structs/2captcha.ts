@@ -244,6 +244,46 @@ a     *
     }
 
     /**
+     * Solves a turnstile Captcha, returning the result as a string.
+     * 
+     * @param {string} sitekey The turnstile site key
+     * @param {string} pageurl The URL the captcha appears on
+     * 
+     * @returns {Promise<CaptchaAnswer>} The result from the solve
+     * @throws APIError
+     * @example
+     * solver.turnstile("37f92ac1-4956-457e-83cd-723423af613f", "https://www.tokyobitcoiner.com/hcaptcha")
+     * .then((res) => {
+     *   console.log(res)
+     * })
+     */
+    public async turnstile(sitekey: string, pageurl: string): Promise<CaptchaAnswer> {
+        //'extra' is user defined, and the default contents should be overridden by it.
+        const payload = {
+            sitekey: sitekey,
+            pageurl: pageurl,
+            method: "turnstile",
+            ...this.defaultPayload
+        }
+
+        const response = await fetch(this.in + utils.objectToURI(payload))
+        const result = await response.text()
+
+        let data;
+        try {
+            data = JSON.parse(result)
+        } catch {
+            throw new APIError(result)
+        }
+
+        if (data.status == 1) {
+            return this.pollResponse(data.request)
+        } else {
+            throw new APIError(data.request)
+        }
+    }
+
+    /**
      * Solves a geetest Captcha, returning the result as a string.
      *
      * @param {string} gt Value of gt parameter found on site
